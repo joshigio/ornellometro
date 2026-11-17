@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -235,6 +235,8 @@ input[type="text"], input[type="date"], input[type="time"], input[type="number"]
 footer { text-align: center; font-size: 12px; color: var(--ink-soft); }
 
 /* iPhone */
+html, body { max-width: 100%; overflow-x: hidden; }
+input, select, textarea { max-width: 100%; }
 button, a, input, label, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; min-height: 46px; text-align: left; display: block; }
 input::-webkit-date-and-time-value { text-align: left; }
