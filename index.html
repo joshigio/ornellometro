@@ -1,5 +1,18 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ornellometro">
+<meta name="theme-color" content="#fbeff1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17142e" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-512.png">
 <title>L'Ornellometro</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap">
 <style>
@@ -31,7 +44,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body {
+body { margin: 0;
   background: var(--bg);
   background-image: radial-gradient(var(--bg-dot) 1.6px, transparent 1.6px);
   background-size: 22px 22px;
@@ -41,7 +54,7 @@ body {
   line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 20px calc(110px + env(safe-area-inset-bottom, 0px));
+  padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(110px + env(safe-area-inset-bottom, 0px));
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -248,6 +261,31 @@ input[type="text"], input[type="number"], .share-fallback { font-size: 16px; }
   .album { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 6px; }
   #shareBtn, #sosBtn { width: 100%; }
 }
+@media (max-width: 440px) {
+  body { font-size: 17px; }
+  .eyebrow { font-size: 13px; }
+  .brand p, .meta, .flavor-note, .fine, .word .use, .clock-note { font-size: 15px; }
+  .chip, .progress-txt, .field label, .legend, .hint, .clock .city small { font-size: 14px; }
+  .chip b { font-size: 17px; }
+  .card h2 { font-size: 19px; }
+  .count .lead { font-size: 20px; }
+  .digit span { font-size: 12px; }
+  .quote { font-size: 18px; }
+  .flavor-name { font-size: 22px; }
+  .tieni { font-size: 32px; }
+  .word .kana { font-size: 34px; }
+  .word .romaji { font-size: 20px; }
+  .q-word b { font-size: 23px; }
+  .q-word span { font-size: 16px; }
+  .opt { font-size: 16px; }
+  .price { font-size: 14px; }
+  .tab { font-size: 13px; }
+  .tab .k { font-size: 22px; }
+  .checklist label { font-size: 16px; padding: 9px 4px; }
+  .cell { font-size: 12px; }
+  .slip dd { font-size: 16px; }
+  .slip dt { font-size: 12px; }
+}
 @media (max-width: 360px) {
   .conv { grid-template-columns: 1fr; }
   .digit b { font-size: 24px; }
@@ -258,6 +296,8 @@ input[type="text"], input[type="number"], .share-fallback { font-size: 16px; }
 }
 </style>
 
+</head>
+<body>
 <div class="app">
   <header class="top">
     <div class="brand">
@@ -1084,3 +1124,6 @@ input[type="text"], input[type="number"], .share-fallback { font-size: 16px; }
   }, 1000);
 })();
 </script>
+
+</body>
+</html>
