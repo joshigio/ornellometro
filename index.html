@@ -1,0 +1,849 @@
+<title>L'Ornellometro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: una colonna stile app, carte tipo "omamori" su fondo sakura; il fruttino e il conto alla rovescia sono il centro */
+:root {
+  --bg: #fbeff1;
+  --bg-dot: #f3d6dc;
+  --card: #ffffff;
+  --ink: #2a2350;
+  --ink-soft: #6c6690;
+  --line: #ecd9e0;
+  --hinomaru: #e2384d;
+  --ai: #3b3a8f;
+  --matcha: #5f9c4f;
+  --chip: #f6e6ea;
+  --display: "Mochiy Pop One", "Hiragino Maru Gothic ProN", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17142e; --bg-dot: #241f45; --card: #221d40; --ink: #f6eef6; --ink-soft: #b4add6;
+    --line: #362f5e; --hinomaru: #ff5a6c; --ai: #a9a6ff; --matcha: #8fcf7c; --chip: #2d2752;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17142e; --bg-dot: #241f45; --card: #221d40; --ink: #f6eef6; --ink-soft: #b4add6;
+  --line: #362f5e; --hinomaru: #ff5a6c; --ai: #a9a6ff; --matcha: #8fcf7c; --chip: #2d2752;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(var(--bg-dot) 1.6px, transparent 1.6px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.app { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1, h2, .display { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+.card { background: var(--card); border: 1.5px solid var(--line); border-radius: 22px; padding: 20px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ai); outline-offset: 2px; border-radius: 8px; }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.sun { width: 44px; height: 44px; border-radius: 50%; background: var(--hinomaru); flex: none; box-shadow: 0 0 0 5px var(--card), 0 0 0 6.5px var(--line); }
+.brand h1 { font-size: 22px; line-height: 1.15; }
+.brand p { margin: 2px 0 0; color: var(--ink-soft); font-size: 13px; }
+.icon-btn { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 12px; font-size: 14px; font-weight: 700; color: var(--ink); flex: none; }
+
+/* Countdown */
+.count { text-align: center; padding-block: 24px; }
+.count .lead { font-family: var(--display); font-size: 18px; margin-top: 4px; }
+.digits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 18px 0 10px; }
+.digit { background: var(--chip); border-radius: 16px; padding: 12px 4px 8px; }
+.digit b { display: block; font-family: var(--display); font-size: clamp(28px, 9vw, 44px); line-height: 1; font-variant-numeric: tabular-nums; color: var(--hinomaru); }
+.digit span { font-size: 12px; color: var(--ink-soft); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.digits.small .digit b { font-size: clamp(22px, 7vw, 32px); color: var(--ai); }
+.big-day { font-family: var(--display); font-size: clamp(64px, 22vw, 110px); line-height: 1; color: var(--hinomaru); margin: 14px 0 4px; font-variant-numeric: tabular-nums; }
+.meta { color: var(--ink-soft); font-size: 14px; }
+.track { height: 12px; border-radius: 99px; background: var(--chip); overflow: hidden; margin: 16px 0 6px; }
+.track i { display: block; height: 100%; background: linear-gradient(90deg, var(--hinomaru), #ff9db0); border-radius: 99px; transition: width .6s ease; }
+.track-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); font-weight: 700; }
+
+/* Sticker of the day */
+.today { display: grid; gap: 14px; justify-items: center; text-align: center; }
+.sticker-btn { background: none; border: 0; padding: 0; position: relative; -webkit-tap-highlight-color: transparent; }
+.sticker { width: 190px; max-width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(42,35,80,.22)); transition: transform .2s; }
+.sticker-btn:hover .sticker { transform: rotate(-4deg) scale(1.03); }
+.sticker-btn:not(.pop) .sticker { animation: wiggle 2.6s ease-in-out infinite; }
+@keyframes wiggle { 0%,70%,100%{transform:rotate(0)} 76%{transform:rotate(-7deg)} 82%{transform:rotate(6deg)} 88%{transform:rotate(-4deg)} 94%{transform:rotate(2deg)} }
+.tap-badge { position: absolute; top: 4px; right: -18px; z-index: 2; background: var(--hinomaru); color: #fff; font-family: var(--display); font-size: 13px; padding: 5px 11px; border-radius: 99px; transform: rotate(10deg); box-shadow: 0 3px 0 color-mix(in srgb, var(--hinomaru) 60%, #000); animation: badge 1.4s ease-in-out infinite; }
+@keyframes badge { 0%,100%{transform:rotate(10deg) scale(1)} 50%{transform:rotate(10deg) scale(1.12)} }
+.sticker-btn.tapped .tap-badge { display: none; }
+.word-btn { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 0; }
+.word-btn .more { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--ai); background: var(--chip); padding: 4px 10px; border-radius: 99px; }
+.word-btn:hover .more { background: color-mix(in srgb, var(--ai) 18%, var(--chip)); }
+.word-btn.flip .kana { animation: pop .4s ease; }
+.sticker-btn.pop .sticker { animation: pop .5s ease; }
+@keyframes pop { 0%{transform:scale(1)} 35%{transform:scale(1.14) rotate(5deg)} 70%{transform:scale(.96) rotate(-3deg)} 100%{transform:scale(1)} }
+.tieni { font-family: var(--display); font-size: 30px; line-height: 1; margin-top: -6px; }
+.tieni em { font-style: normal; color: var(--hinomaru); }
+.flavor-name { font-family: var(--display); font-size: 20px; color: var(--ai); }
+.flavor-note { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+.quote { font-size: 18px; font-weight: 700; line-height: 1.45; max-width: 34ch; margin: 4px auto 0; text-wrap: pretty; }
+.hint { font-size: 12px; color: var(--ink-soft); }
+.heart { position: fixed; pointer-events: none; font-size: 22px; color: var(--hinomaru); z-index: 50; animation: fly 1.1s ease-out forwards; }
+@keyframes fly { from { opacity: 1; transform: translate(0,0) scale(.6); } to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.3); } }
+
+/* Two-column row */
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+.row > * { min-width: 0; }
+.card h2 { font-size: 17px; margin-bottom: 12px; }
+
+/* Clocks */
+.clocks { display: grid; gap: 10px; }
+.clock { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.clock .city { font-weight: 800; }
+.clock .city small { display: block; font-weight: 500; color: var(--ink-soft); font-size: 12px; }
+.clock .time { font-family: var(--display); font-size: 28px; font-variant-numeric: tabular-nums; }
+.clock-note { font-size: 13px; color: var(--ink-soft); border-top: 1.5px dashed var(--line); padding-top: 10px; }
+
+/* Word of the day */
+.word .kana { font-size: 30px; font-weight: 800; line-height: 1.2; }
+.word .romaji { font-family: var(--display); color: var(--hinomaru); font-size: 18px; }
+.word .it { margin-top: 6px; }
+.word .use { font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
+
+/* Album */
+.album-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.album-head h2 { margin: 0; }
+.album { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 8px; }
+.cell { background: var(--chip); border: 1.5px solid transparent; border-radius: 14px; padding: 6px 2px 4px; text-align: center; font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+.cell svg { width: 40px; height: 48px; display: block; margin: 0 auto 2px; }
+.cell.locked svg { opacity: .25; filter: grayscale(1); }
+.cell.is-today { border-color: var(--hinomaru); color: var(--hinomaru); }
+.cell.trip { background: color-mix(in srgb, var(--hinomaru) 12%, var(--chip)); }
+.cell:disabled { cursor: default; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); margin-top: 10px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--chip); }
+.legend .l-trip::before { background: color-mix(in srgb, var(--hinomaru) 30%, var(--chip)); }
+.legend .l-today::before { border: 2px solid var(--hinomaru); background: transparent; }
+
+/* Checklist */
+.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.checklist label { display: flex; align-items: center; gap: 10px; padding: 7px 4px; border-radius: 10px; cursor: pointer; }
+.checklist input { width: 20px; height: 20px; accent-color: var(--hinomaru); flex: none; }
+.checklist .done span { text-decoration: line-through; color: var(--ink-soft); }
+.checklist li { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.checklist li label { flex: 1; min-width: 0; }
+.del { background: none; border: 0; color: var(--ink-soft); font-size: 18px; padding: 2px 8px; border-radius: 8px; }
+.add { display: flex; gap: 8px; margin-top: 10px; }
+.add input { flex: 1; min-width: 0; }
+.progress-txt { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+
+/* Forms */
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+.chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.chip { background: var(--chip); border-radius: 99px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+.chip b { color: var(--ai); font-family: var(--display); font-weight: 400; font-size: 15px; }
+.quiz { display: grid; gap: 14px; }
+.q-word b { font-size: 20px; }
+.q-word span { font-family: var(--display); color: var(--hinomaru); font-size: 14px; margin-left: 6px; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.opt { background: var(--chip); border: 1.5px solid var(--line); border-radius: 12px; padding: 7px 12px; font-size: 14px; font-weight: 700; text-align: left; color: var(--ink); }
+.opt:hover:not(:disabled) { border-color: var(--ai); }
+.opt:disabled { cursor: default; opacity: 1; }
+.opt.right { background: color-mix(in srgb, var(--matcha) 25%, var(--chip)); border-color: var(--matcha); }
+.opt.wrong { background: color-mix(in srgb, var(--hinomaru) 22%, var(--chip)); border-color: var(--hinomaru); }
+.quiz-foot { margin-top: 12px; font-size: 14px; font-weight: 700; }
+.conv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.conv > * { min-width: 0; }
+.rate { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+.rate input { width: 100px; }
+.prices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.price { background: var(--chip); border: 1.5px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 12px; font-weight: 700; color: var(--ink); }
+.price:hover { border-color: var(--ai); }
+.fine { font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+input[type="text"], input[type="date"], input[type="time"], input[type="number"] {
+  background: var(--chip); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+.btn { background: var(--hinomaru); color: #fff; border: 0; border-radius: 12px; padding: 10px 16px; font-weight: 800; }
+.btn.ghost { background: var(--chip); color: var(--ink); }
+.settings { display: grid; gap: 14px; }
+.settings .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 400px) { .settings .two { grid-template-columns: 1fr; } }
+.settings .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.msg { font-size: 13px; font-weight: 700; }
+.msg.err { color: var(--hinomaru); }
+.msg.ok { color: var(--matcha); }
+footer { text-align: center; font-size: 12px; color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="sun" aria-hidden="true"></div>
+      <div>
+        <h1 id="title">L'Ornellometro</h1>
+        <p id="subtitle">Road to Japan</p>
+      </div>
+    </div>
+    <button class="icon-btn" id="openSettings" type="button" aria-controls="settingsCard">Date</button>
+  </header>
+
+  <section class="card count" id="countCard" aria-live="polite"></section>
+
+  <section class="card today">
+    <div class="eyebrow" id="todayLabel">Il fruttino di oggi</div>
+    <button class="sticker-btn" id="stickerBtn" type="button" aria-label="Prendi il fruttino">
+      <span class="tap-badge" aria-hidden="true">toccami!</span>
+      <div id="stickerWrap"></div>
+      <div class="tieni">tieni <em>&#10084;</em></div>
+    </button>
+    <div>
+      <div class="flavor-name" id="flavorName"></div>
+      <div class="flavor-note" id="flavorNote"></div>
+    </div>
+    <p class="quote" id="quote"></p>
+  </section>
+
+  <div class="row">
+    <section class="card">
+      <h2>Che ore sono?</h2>
+      <div class="clocks">
+        <div class="clock"><div class="city">Italia<small id="dateIt"></small></div><div class="time" id="timeIt">--:--</div></div>
+        <div class="clock"><div class="city">Tokyo<small id="dateJp"></small></div><div class="time" id="timeJp">--:--</div></div>
+        <div class="clock-note" id="clockNote"></div>
+      </div>
+    </section>
+    <section class="card word">
+      <h2>Giapponese del giorno</h2>
+      <button type="button" class="word-btn" id="wordBtn" aria-label="Mostra un'altra parola giapponese">
+        <div class="kana" id="wKana"></div>
+        <div class="romaji" id="wRomaji"></div>
+        <div class="it" id="wIt"></div>
+        <div class="use" id="wUse"></div>
+        <span class="more">Tocca per un'altra parola</span>
+      </button>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="album-head">
+      <h2>Quiz di giapponese</h2>
+      <span class="progress-txt" id="quizScore"></span>
+    </div>
+    <div class="quiz" id="quiz"></div>
+    <div class="quiz-foot" id="quizFoot"></div>
+  </section>
+
+  <section class="card">
+    <h2>Yen ↔ Euro</h2>
+    <div class="conv">
+      <div class="field"><label for="cYen">Yen (¥)</label><input type="number" id="cYen" inputmode="decimal" min="0" placeholder="1000"></div>
+      <div class="field"><label for="cEur">Euro (€)</label><input type="number" id="cEur" inputmode="decimal" min="0" step="0.01" placeholder="5.71"></div>
+    </div>
+    <div class="rate"><label for="cRate">Cambio: 1 € =</label><input type="number" id="cRate" inputmode="decimal" min="1" step="0.1"><span>¥</span></div>
+    <div class="prices" id="prices"></div>
+    <div class="fine">Prima di partire controlla il cambio del giorno e aggiornalo qui.</div>
+  </section>
+
+  <section class="card">
+    <div class="album-head">
+      <h2>Album dei fruttini</h2>
+      <span class="progress-txt" id="albumCount"></span>
+    </div>
+    <div class="album" id="album"></div>
+    <div class="legend"><span class="l-today">oggi</span><span class="l-trip">giorni in Giappone</span><span>ogni giorno se ne sblocca uno</span></div>
+  </section>
+
+  <section class="card">
+    <div class="album-head">
+      <h2>Valigia</h2>
+      <span class="progress-txt" id="packCount"></span>
+    </div>
+    <ul class="checklist" id="packList"></ul>
+    <form class="add" id="packForm">
+      <input type="text" id="packInput" placeholder="Aggiungi qualcosa…" aria-label="Nuova cosa da mettere in valigia">
+      <button class="btn" type="submit">Aggiungi</button>
+    </form>
+  </section>
+
+  <section class="card" id="settingsCard">
+    <h2>Date del viaggio</h2>
+    <form class="settings" id="settingsForm">
+      <div class="field"><label for="sName">Nome</label><input type="text" id="sName"></div>
+      <div class="two">
+        <div class="field"><label for="sDep">Partenza</label><input type="date" id="sDep" required></div>
+        <div class="field"><label for="sDepTime">Ora del volo (facoltativa)</label><input type="time" id="sDepTime"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="sRet">Ritorno</label><input type="date" id="sRet" required></div>
+        <div class="field"><label for="sRetTime">Ora di arrivo (facoltativa)</label><input type="time" id="sRetTime"></div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Salva date</button>
+        <button class="btn ghost" type="button" id="resetBtn">Ripristina 11–24 dic</button>
+        <span class="msg" id="sMsg" role="status"></span>
+      </div>
+    </form>
+  </section>
+
+  <footer>Fatto con affetto per Ornella. Buon viaggio, いってらっしゃい!</footer>
+</div>
+
+<script>
+(function () {
+  const DEFAULTS = { name: "Ornella", dep: "2026-12-11", depTime: "", ret: "2026-12-24", retTime: "" };
+  const KEY = "ornella-jp-v1";
+
+  function load(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  let cfg = Object.assign({}, DEFAULTS, load(KEY, {}));
+
+  // ---------- Data ----------
+  const FLAVORS = [
+    { n: "Mela e Banana", note: "Il classico. Si parte con le certezze.", f: "🍎🍌", c1: "#ffd76a", c2: "#ff9f43" },
+    { n: "Matcha e Mochi", note: "Morbido, verde, zen.", f: "🍵🍡", c1: "#b8e08a", c2: "#5f9c4f" },
+    { n: "Sakura e Lampone", note: "Sa di primavera anche a dicembre.", f: "🌸🍓", c1: "#ffd1dc", c2: "#ff7a9a" },
+    { n: "Mozzarella di bufala e Fico", note: "Un pezzo di Campania in valigia.", f: "🧀🫐", c1: "#fff4e0", c2: "#b07cc6" },
+    { n: "Yuzu e Zenzero", note: "Agrumato e un po' piccante, come te.", f: "🍋🫚", c1: "#fff27a", c2: "#f2b632" },
+    { n: "Wasabi e Mela verde", note: "Ti sveglia meglio del caffè.", f: "🍏🌿", c1: "#d9f7a1", c2: "#7cc04a" },
+    { n: "Ramen al Mango", note: "Nessuno l'ha chiesto. Eccolo.", f: "🍜🥭", c1: "#ffe08a", c2: "#ff8a3d" },
+    { n: "Pastiera e Arancia", note: "Pasqua e Natale nello stesso fruttino.", f: "🥧🍊", c1: "#ffe6b0", c2: "#ff9a3c" },
+    { n: "Sesamo nero e Mirtillo", note: "Elegante, misterioso, un po' dark.", f: "🫐⚫", c1: "#b9b2e8", c2: "#4b4594" },
+    { n: "Takoyaki e Ciliegia", note: "Polpo e frutta: coraggio puro.", f: "🐙🍒", c1: "#ffc2b0", c2: "#e2384d" },
+    { n: "Melone Yubari", note: "Il melone più caro del mondo, versione pappa.", f: "🍈✨", c1: "#ffe1b8", c2: "#ffad5c" },
+    { n: "Natto e Banana", note: "Filante. Molto filante. Fidati.", f: "🫘🍌", c1: "#fff0a0", c2: "#c9a24a" },
+    { n: "Babà e Albicocca", note: "Bagnato di coraggio.", f: "🧁🍑", c1: "#ffe2a6", c2: "#f0a040" },
+    { n: "Onigiri e Umeboshi", note: "La prugna salata che fa fare la faccia buffa.", f: "🍙🟣", c1: "#f5f5f5", c2: "#c75b8a" },
+    { n: "Pocky e Fragola", note: "Da sgranocchiare in metro.", f: "🥢🍓", c1: "#ffd3da", c2: "#ff5c7a" },
+    { n: "Ramune e Limone", note: "Frizzante come la vigilia di un viaggio.", f: "🫧🍋", c1: "#c9f1ff", c2: "#5ab8e8" },
+    { n: "Pizza Margherita e Ananas", note: "Scandaloso a Napoli, normale a Tokyo.", f: "🍕🍍", c1: "#fff1a8", c2: "#ff6b4a" },
+    { n: "Taiyaki e Castagna", note: "Il pesciolino ripieno dell'inverno.", f: "🐟🌰", c1: "#f6d7a7", c2: "#b97a3f" },
+    { n: "Sfogliatella e Cachi", note: "Riccia fuori, dolce dentro.", f: "🥐🟠", c1: "#ffe2b5", c2: "#ff8c42" },
+    { n: "Calpis e Pesca", note: "Lattiginoso e gentile.", f: "🥛🍑", c1: "#ffffff", c2: "#ffb3a7" },
+    { n: "Melanzana e Cioccolato", note: "Esiste davvero, in Costiera. Ora anche in pappa.", f: "🍆🍫", c1: "#c8a2d8", c2: "#6b3f6e" },
+    { n: "Satsumaimo e Cannella", note: "Patata dolce arrosto dal camioncino.", f: "🍠🤎", c1: "#e8b7d3", c2: "#a3527a" },
+    { n: "Wagyu e Mela", note: "Il fruttino più costoso della collezione.", f: "🥩🍎", c1: "#ffc4c4", c2: "#c94a4a" },
+    { n: "Caffè sospeso e Pera", note: "Uno per te e uno per chi viene dopo.", f: "☕🍐", c1: "#f2e3c9", c2: "#9b6b43" },
+    { n: "Kit Kat al Matcha e Mandarino", note: "Souvenir obbligatorio.", f: "🍫🍊", c1: "#d4ef9e", c2: "#ff9a3c" },
+    { n: "Taro e Cocco", note: "Viola pastello, sapore di bubble tea.", f: "🥥💜", c1: "#e9dcff", c2: "#a98bdb" },
+    { n: "Durian e Banana", note: "Vietato in metro. Solo all'aperto.", f: "🌵🍌", c1: "#f4f0a0", c2: "#a3b84a" },
+    { n: "Sushi e Pesca", note: "Nigiri da bere.", f: "🍣🍑", c1: "#ffd8c4", c2: "#ff7f6a" },
+    { n: "Struffoli e Mandarancio", note: "Il Natale di casa ti aspetta.", f: "🍯🍊", c1: "#ffe9a8", c2: "#f08a24" },
+    { n: "Mochi alla Fragola e Panna", note: "Ichigo daifuku, ma da succhiare.", f: "🍡🍓", c1: "#fff", c2: "#ff8fab" },
+    { n: "Curry giapponese e Mela", note: "Il curry giapponese ha davvero la mela dentro.", f: "🍛🍎", c1: "#ffd27a", c2: "#c97a1e" },
+    { n: "Limoncello e Yuzu", note: "Amalfi incontra Kyoto.", f: "🍋🍋", c1: "#fffbb0", c2: "#e8cf2a" },
+    { n: "Tamagoyaki e Banana", note: "Frittata dolce. Ci sta, giuro.", f: "🍳🍌", c1: "#fff3a0", c2: "#ffc93c" },
+    { n: "Hojicha e Pera", note: "Tè tostato da sorseggiare al tempio.", f: "🍂🍐", c1: "#e8d2b0", c2: "#9e6a3c" },
+    { n: "Panettone e Kaki", note: "Natale in arrivo, cachi di stagione.", f: "🎄🟠", c1: "#ffeab0", c2: "#e88a2a" },
+    { n: "Ciliegia e Neve del Fuji", note: "Edizione limitata, fresca di montagna.", f: "🗻🍒", c1: "#ffffff", c2: "#8fb8ff" },
+    { n: "Anko e Fragola", note: "Fagioli rossi dolci: il cuore dei dolci giapponesi.", f: "🫘🍓", c1: "#f3c1c8", c2: "#8c3b4a" },
+    { n: "Friarielli e Kiwi", note: "Verde su verde. Amaro e dolce.", f: "🥬🥝", c1: "#d6f2a2", c2: "#6a9c3a" },
+    { n: "Dango e Caramello", note: "Tre palline, un bastoncino, zero pensieri.", f: "🍡🍯", c1: "#ffe7c2", c2: "#d48a3a" },
+    { n: "Ananas e Okonomiyaki", note: "Di tutto un po', come dice il nome.", f: "🥞🍍", c1: "#ffe9a0", c2: "#d97a3a" },
+    { n: "Uva Shine Muscat", note: "L'uva verde di lusso, da regalo.", f: "🍇✨", c1: "#e6ffb8", c2: "#9ccf5a" },
+    { n: "Pistacchio e Sakura mochi", note: "Rosa e verde, Bronte e Kyoto.", f: "🌸🟢", c1: "#ffd6e2", c2: "#9cc46a" },
+    { n: "Sushi al Cioccolato", note: "Il gusto più strano dell'album. Complimenti.", f: "🍣🍫", c1: "#e8c9a8", c2: "#6b3f2a" }
+  ];
+
+  const RETURN_FLAVOR = { n: "Mela, Banana e Bentornata", note: "Si chiude come si è iniziato. Con un abbraccio.", f: "🍎🤍", c1: "#ffd76a", c2: "#ff6b81" };
+
+  const PRE = [
+    "Ogni email a cui rispondi oggi è un passo in più verso il primo ramen a Tokyo.",
+    "Quella riunione che poteva essere una mail? Tra poco sarà un ricordo lontano 9.000 km.",
+    "Oggi lavori, tra qualche settimana guardi il Fuji. Tieni duro.",
+    "Il capo non lo sa, ma stai già pensando in giapponese.",
+    "Ogni giornata di lavoro finita è una casella in meno sul calendario. Spuntala con orgoglio.",
+    "Se oggi è pesante, ricordati che tra poco l'unica scadenza sarà l'orario di chiusura del tempio.",
+    "Respira. Il prossimo foglio Excel che apri è uno degli ultimi prima delle ferie.",
+    "Sopravvivere al lunedì è allenamento per il jet lag.",
+    "Fai il minimo indispensabile con il massimo stile. Poi pensa ai mochi.",
+    "Le notifiche di lavoro stanno per diventare notifiche di Google Maps a Kyoto.",
+    "Oggi conta: ogni ora lavorata è un pezzetto di sushi pagato.",
+    "Quando qualcuno ti chiede 'hai un minuto?', pensa: tra poco avrò 14 giorni.",
+    "Sei stanca perché stai portando il peso di tutto. Tra poco porterai solo uno zaino.",
+    "Caffè, fruttino, testa bassa, e il Giappone si avvicina.",
+    "Non devi essere perfetta al lavoro. Devi solo arrivare all'11 dicembre.",
+    "Il venerdì arriva sempre. E dopo un certo numero di venerdì arriva Tokyo.",
+    "Oggi metti l'out of office nel cuore, anche se sul pc non puoi ancora.",
+    "Se il turno non finisce mai, immagina il treno proiettile: veloce, puntuale, verso le ferie.",
+    "Ogni pausa caffè è un piccolo allenamento per i distributori automatici giapponesi.",
+    "Le settimane lunghe sono quelle che rendono il viaggio ancora più bello.",
+    "Oggi sii gentile con te stessa: stai lavorando per regalarti il Giappone.",
+    "Chiudi il pc stasera con un pensiero solo: konbini.",
+    "Non è una giornata no, è una giornata in meno.",
+    "Tieni duro come l'ultimo onigiri rimasto sullo scaffale.",
+    "Pensa a quanto sarà bello scrivere 'sono in ferie, rispondo al rientro'.",
+    "Tra un meeting e l'altro, studia una parola giapponese. È produttività anche questa.",
+    "La to-do list di oggi è lunga, ma quella del Giappone è più bella.",
+    "Ancora qualche settimana di sveglie presto, poi solo sveglie per vedere l'alba sul Fuji.",
+    "Ce la stai facendo. E il fruttino di oggi lo sa.",
+    "Lavora come se stessi per partire. Perché stai per partire."
+  ];
+  const DAY0 = "Oggi si parte! Passaporto, sorriso, fruttino. Itterasshai, Ornella!";
+  const TRIP = [
+    "Benvenuta in Giappone! Bevi acqua, dormi un po', guarda tutto.",
+    "Il jet lag passa. I ricordi restano.",
+    "Oggi perditi in un konbini e prova una cosa a caso.",
+    "Guarda in alto: insegne, lanterne, cielo. Tutto è nuovo.",
+    "Mangia una cosa che non sai pronunciare.",
+    "Fai una foto per te, non per Instagram.",
+    "Metà viaggio: sei esattamente dove dovresti essere.",
+    "Un tempio, un tè, un momento di silenzio. Te lo meriti.",
+    "Ricordati di chiedere sumimasen e poi di sorridere.",
+    "Compra un omamori: un portafortuna per il ritorno.",
+    "Assaggia un dolce che non hai mai visto.",
+    "Goditi ogni minuto. Anche quelli in fila per il ramen.",
+    "Ultimi giorni: rallenta e guarda tutto due volte.",
+    "Ultimo giorno! Saluta il Giappone con un inchino e un arrivederci.",
+    "Domani si torna. Oggi si vive al massimo."
+  ];
+  const RET = "Bentornata a casa! Il Giappone ti ha lasciato qualcosa negli occhi. E noi ti aspettavamo.";
+  const POST = [
+    "Racconta tutto. Ogni dettaglio. Ogni ramen.",
+    "Il viaggio è finito, la nostalgia è appena iniziata.",
+    "Ora che sei tornata, dove si va la prossima volta?",
+    "Le foto sono tante, ma i ricordi di più."
+  ];
+
+  const WORDS = [
+    { k: "ありがとう", r: "arigatou", it: "grazie", u: "Più gentile: arigatou gozaimasu." },
+    { k: "すみません", r: "sumimasen", it: "mi scusi / permesso", u: "Vale per chiamare il cameriere e per farsi spazio." },
+    { k: "おいしい", r: "oishii", it: "buonissimo", u: "Dillo al cuoco: lo renderai felice." },
+    { k: "かわいい", r: "kawaii", it: "carino, tenero", u: "Ti servirà ogni cinque minuti." },
+    { k: "かんぱい", r: "kanpai", it: "cin cin", u: "Si alza il bicchiere e si urla, con gioia." },
+    { k: "いただきます", r: "itadakimasu", it: "buon appetito (prima di mangiare)", u: "Mani giunte, piccolo inchino." },
+    { k: "おねがいします", r: "onegaishimasu", it: "per favore", u: "Indica la cosa sul menu e aggiungi questa." },
+    { k: "えき", r: "eki", it: "stazione", u: "Eki wa doko desu ka? Dov'è la stazione?" },
+    { k: "だいじょうぶ", r: "daijoubu", it: "tutto ok, va bene", u: "Funziona sia come domanda che come risposta." },
+    { k: "すごい", r: "sugoi", it: "fantastico, wow", u: "Per il Fuji, per i templi e per i bagni hi-tech." },
+    { k: "おはよう", r: "ohayou", it: "buongiorno", u: "Formale: ohayou gozaimasu." },
+    { k: "こんばんは", r: "konbanwa", it: "buonasera", u: "Dalla sera in poi, al posto di konnichiwa." },
+    { k: "いくらですか", r: "ikura desu ka", it: "quanto costa?", u: "Utile nei mercati, ma spesso c'è il prezzo scritto." },
+    { k: "トイレはどこですか", r: "toire wa doko desu ka", it: "dov'è il bagno?", u: "La frase più utile di tutto il viaggio." },
+    { k: "みず", r: "mizu", it: "acqua", u: "Al ristorante spesso è gratis e arriva da sola." },
+    { k: "たのしい", r: "tanoshii", it: "divertente", u: "Tanoshikatta: è stato divertente." },
+    { k: "わかりません", r: "wakarimasen", it: "non capisco", u: "Con un sorriso, ti aiuteranno comunque." },
+    { k: "えいご", r: "eigo", it: "inglese", u: "Eigo no menyu arimasu ka? Avete il menu in inglese?" },
+    { k: "こんにちは", r: "konnichiwa", it: "ciao / buongiorno", u: "Il saluto universale di giorno." },
+    { k: "ごちそうさまでした", r: "gochisousama deshita", it: "grazie per il pasto", u: "Si dice uscendo dal ristorante." },
+    { k: "さむい", r: "samui", it: "fa freddo", u: "A dicembre ti servirà. Porta i guanti." },
+    { k: "おまもり", r: "omamori", it: "portafortuna del tempio", u: "Non si apre mai, altrimenti la fortuna scappa." },
+    { k: "またね", r: "mata ne", it: "a presto", u: "Il saluto tra amici." },
+    { k: "いってきます", r: "ittekimasu", it: "vado e torno", u: "Si dice uscendo di casa. Chi resta risponde itterasshai." }
+  ];
+
+  const PACK_DEFAULT = [
+    "Passaporto", "Biglietti aerei e assicurazione", "Adattatore presa tipo A", "eSIM o pocket wifi",
+    "Contanti in yen", "Carta Suica / IC sul telefono", "Powerbank", "Scarpe comode (si cammina tanto)",
+    "Giacca pesante, guanti e sciarpa", "Fazzoletto per le mani (nei bagni spesso non ci sono salviette)",
+    "Sacchetto per i rifiuti (ci sono pochi cestini)", "Calze senza buchi (ci si toglie spesso le scarpe)",
+    "Medicine personali", "Spazio in valigia per i souvenir"
+  ];
+
+  // ---------- Date utils ----------
+  function parseDate(s, t) {
+    const [y, m, d] = s.split("-").map(Number);
+    let hh = 0, mm = 0;
+    if (t) { [hh, mm] = t.split(":").map(Number); }
+    return new Date(y, m - 1, d, hh, mm, 0, 0);
+  }
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function dayDiff(a, b) { return Math.round((midnight(b) - midnight(a)) / 86400000); }
+  function addDays(d, n) { const x = midnight(d); x.setDate(x.getDate() + n); return x; }
+  const fmtLong = new Intl.DateTimeFormat("it-IT", { weekday: "long", day: "numeric", month: "long" });
+  const fmtShort = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short" });
+  const pad = n => String(n).padStart(2, "0");
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  // ---------- Sticker SVG ----------
+  let uid = 0;
+  function pouch(fl, opts) {
+    const id = "g" + (++uid);
+    const face = opts && opts.mini ? "" : `
+      <ellipse cx="80" cy="112" rx="5.5" ry="7" fill="#2a2350"/>
+      <ellipse cx="120" cy="112" rx="5.5" ry="7" fill="#2a2350"/>
+      <circle cx="82" cy="109" r="1.8" fill="#fff"/><circle cx="122" cy="109" r="1.8" fill="#fff"/>
+      <ellipse cx="68" cy="126" rx="9" ry="5" fill="#ff7a9a" opacity=".55"/>
+      <ellipse cx="132" cy="126" rx="9" ry="5" fill="#ff7a9a" opacity=".55"/>
+      <path d="M90 124 Q100 134 110 124" stroke="#2a2350" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+    const body = "M62 46 H138 Q150 46 152 58 L168 198 Q171 228 140 228 H60 Q29 228 32 198 L48 58 Q50 46 62 46 Z";
+    return `<svg viewBox="0 0 200 240" class="${opts && opts.mini ? "" : "sticker"}" role="img" aria-label="Fruttino ${esc(fl.n)}">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${fl.c1}"/><stop offset="1" stop-color="${fl.c2}"/></linearGradient></defs>
+      <g stroke="#ffffff" stroke-width="12" stroke-linejoin="round" fill="#ffffff">
+        <rect x="76" y="6" width="48" height="30" rx="8"/><rect x="85" y="30" width="30" height="18" rx="3"/><path d="${body}"/>
+      </g>
+      <rect x="76" y="6" width="48" height="30" rx="8" fill="${fl.c2}"/>
+      <rect x="76" y="6" width="48" height="30" rx="8" fill="#000" opacity=".12"/>
+      <g stroke="#000" stroke-opacity=".12" stroke-width="2"><line x1="86" y1="12" x2="86" y2="30"/><line x1="96" y1="12" x2="96" y2="30"/><line x1="106" y1="12" x2="106" y2="30"/><line x1="116" y1="12" x2="116" y2="30"/></g>
+      <rect x="85" y="34" width="30" height="14" rx="3" fill="#e9e6f2"/>
+      <path d="${body}" fill="url(#${id})"/>
+      <path d="M58 64 Q60 56 68 56 L74 56 L66 150 Q60 152 58 140 Z" fill="#fff" opacity=".35"/>
+      ${face}
+      <rect x="52" y="152" width="96" height="58" rx="18" fill="#fff" opacity=".88"/>
+      <text x="100" y="194" text-anchor="middle" font-size="32">${fl.f}</text>
+    </svg>`;
+  }
+
+  // ---------- State ----------
+  function trip() {
+    const dep = parseDate(cfg.dep, cfg.depTime);
+    const ret = parseDate(cfg.ret, cfg.retTime || "23:59");
+    const depDay = parseDate(cfg.dep), retDay = parseDate(cfg.ret);
+    const length = dayDiff(depDay, retDay) + 1;
+    const albumStart = addDays(depDay, -30);
+    return { dep, ret, depDay, retDay, length, albumStart };
+  }
+  function flavorFor(date, t) {
+    const i = dayDiff(t.albumStart, date);
+    if (dayDiff(t.retDay, date) === 0) return RETURN_FLAVOR;
+    return FLAVORS[((i % FLAVORS.length) + FLAVORS.length) % FLAVORS.length];
+  }
+  function quoteFor(now, t) {
+    const toDep = dayDiff(now, t.depDay);
+    if (toDep > 0) return PRE[toDep % PRE.length];
+    if (toDep === 0) return DAY0;
+    const tripDay = dayDiff(t.depDay, now);
+    if (dayDiff(now, t.retDay) === 0) return RET;
+    if (now < t.retDay) {
+      if (dayDiff(now, t.retDay) === 1) return TRIP[TRIP.length - 1];
+      return TRIP[Math.min(tripDay, TRIP.length - 2)];
+    }
+    return POST[dayDiff(t.retDay, now) % POST.length];
+  }
+
+  // ---------- Render: countdown ----------
+  const countCard = document.getElementById("countCard");
+  function digitHTML(vals, small) {
+    const labels = ["giorni", "ore", "min", "sec"];
+    return `<div class="digits${small ? " small" : ""}">` + vals.map((v, i) =>
+      `<div class="digit"><b>${i ? pad(v) : v}</b><span>${labels[i]}</span></div>`).join("") + "</div>";
+  }
+  function split(ms) {
+    ms = Math.max(0, ms);
+    const s = Math.floor(ms / 1000);
+    return [Math.floor(s / 86400), Math.floor(s % 86400 / 3600), Math.floor(s % 3600 / 60), s % 60];
+  }
+  function renderCount() {
+    const now = new Date(), t = trip();
+    const name = esc(cfg.name || "Ornella");
+    let html;
+    if (now < t.dep) {
+      const days = dayDiff(now, t.depDay);
+      const lead = days === 0 ? "È oggi! Manca pochissimo al volo" : days === 1 ? "Domani si parte!" : `Mancano ${days} giorni al Giappone`;
+      html = `<div class="eyebrow">Conto alla rovescia</div>
+        <div class="lead">${lead}</div>
+        ${digitHTML(split(t.dep - now))}
+        <div class="meta">Partenza ${fmtLong.format(t.dep)}${cfg.depTime ? " alle " + cfg.depTime : ""} · ritorno ${fmtLong.format(t.retDay)}</div>
+        ${workChips(now, t)}`;
+    } else if (now <= t.ret) {
+      const dayN = Math.min(dayDiff(t.depDay, now) + 1, t.length);
+      const pct = Math.min(100, Math.max(0, (now - t.dep) / (t.ret - t.dep) * 100));
+      html = `<div class="eyebrow">${name} è in Giappone</div>
+        <div class="big-day">${dayN}<span style="font-size:.35em;color:var(--ink-soft)">/${t.length}</span></div>
+        <div class="lead">giorno di viaggio</div>
+        <div class="track" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+        <div class="track-labels"><span>${fmtShort.format(t.depDay)}</span><span>${fmtShort.format(t.retDay)}</span></div>
+        <div class="meta" style="margin-top:12px">Al ritorno mancano</div>
+        ${digitHTML(split(t.ret - now), true)}`;
+    } else {
+      const since = dayDiff(t.retDay, now);
+      html = `<div class="eyebrow">Viaggio completato</div>
+        <div class="big-day" style="font-size:clamp(40px,12vw,64px)">Bentornata!</div>
+        <div class="lead">${t.length} giorni di Giappone, ${name}.</div>
+        <div class="meta" style="margin-top:8px">${since === 0 ? "Sei tornata oggi." : since === 1 ? "Tornata ieri." : `Tornata da ${since} giorni.`} Modifica le date per il prossimo viaggio.</div>`;
+    }
+    countCard.innerHTML = html;
+  }
+
+  // ---------- Render: today ----------
+  let shownDate = null;
+  function renderToday(date) {
+    const t = trip(), now = new Date();
+    const d = date || now;
+    shownDate = date || null;
+    const fl = flavorFor(d, t);
+    document.getElementById("stickerWrap").innerHTML = pouch(fl);
+    document.getElementById("flavorName").textContent = fl.n;
+    document.getElementById("flavorNote").textContent = fl.note;
+    document.getElementById("quote").textContent = quoteFor(midnight(d), t);
+    document.getElementById("todayLabel").textContent = dayDiff(now, d) === 0 ? "Il fruttino di oggi" : "Il fruttino del " + fmtShort.format(d);
+  }
+
+  // ---------- Clocks ----------
+  const tf = tz => new Intl.DateTimeFormat("it-IT", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
+  const df = tz => new Intl.DateTimeFormat("it-IT", { timeZone: tz, weekday: "short", day: "numeric", month: "short" });
+  const hf = tz => new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "numeric", hourCycle: "h23" });
+  function tzOffset(tz, d) {
+    const p = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "shortOffset" }).formatToParts(d).find(x => x.type === "timeZoneName");
+    const m = p && p.value.match(/GMT([+-]\d+)?(?::(\d+))?/);
+    return m ? (Number(m[1] || 0) + (m[2] ? Math.sign(Number(m[1])) * Number(m[2]) / 60 : 0)) : 0;
+  }
+  function renderClocks() {
+    const now = new Date();
+    try {
+      document.getElementById("timeIt").textContent = tf("Europe/Rome").format(now);
+      document.getElementById("timeJp").textContent = tf("Asia/Tokyo").format(now);
+      document.getElementById("dateIt").textContent = df("Europe/Rome").format(now);
+      document.getElementById("dateJp").textContent = df("Asia/Tokyo").format(now);
+      const diff = tzOffset("Asia/Tokyo", now) - tzOffset("Europe/Rome", now);
+      const hJp = Number(hf("Asia/Tokyo").format(now));
+      let mood;
+      if (hJp >= 23 || hJp < 7) mood = "a Tokyo si dorme: niente vocali lunghi";
+      else if (hJp < 12) mood = "a Tokyo è mattina: ora di colazione al konbini";
+      else if (hJp < 18) mood = "a Tokyo è pomeriggio: si esplora";
+      else mood = "a Tokyo è sera: luci al neon e ramen";
+      document.getElementById("clockNote").textContent = `Tokyo è ${diff >= 0 ? "+" : ""}${diff} ore avanti. Adesso ${mood}.`;
+    } catch (e) {}
+  }
+
+  // ---------- Word ----------
+  let wordShift = 0;
+  document.getElementById("wordBtn").addEventListener("click", e => {
+    wordShift++; renderWord();
+    const b = e.currentTarget; b.classList.remove("flip"); void b.offsetWidth; b.classList.add("flip");
+  });
+  function renderWord() {
+    const t = trip();
+    const i = (((dayDiff(t.albumStart, new Date()) + wordShift) % WORDS.length) + WORDS.length) % WORDS.length;
+    const w = WORDS[i];
+    document.getElementById("wKana").textContent = w.k;
+    document.getElementById("wRomaji").textContent = w.r;
+    document.getElementById("wIt").textContent = w.it;
+    document.getElementById("wUse").textContent = w.u;
+  }
+
+  // ---------- Work days ----------
+  const HOLIDAYS = ["01-01", "01-06", "04-25", "05-01", "06-02", "08-15", "11-01", "12-08", "12-25", "12-26"];
+  function workInfo(now, depDay) {
+    let d = midnight(now);
+    if (now.getHours() >= 18) d = addDays(d, 1);
+    let days = 0, fri = 0; const hol = [];
+    while (d < depDay) {
+      const wd = d.getDay(), md = pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+      if (wd >= 1 && wd <= 5) {
+        if (HOLIDAYS.includes(md)) hol.push(d);
+        else { days++; if (wd === 5) fri++; }
+      }
+      d = addDays(d, 1);
+    }
+    return { days, fri, hol };
+  }
+  function workChips(now, t) {
+    const w = workInfo(now, t.depDay);
+    if (!w.days) return `<div class="chips"><span class="chip">Lavoro finito. Adesso si parte!</span></div>`;
+    const hol = w.hol.length ? `<div class="meta" style="margin-top:6px">${w.hol.map(d => fmtShort.format(d)).join(", ")} ${w.hol.length === 1 ? "è festa" : "sono festa"}: non ${w.hol.length === 1 ? "conta" : "contano"}</div>` : "";
+    return `<div class="chips"><span class="chip"><b>${w.days}</b> ${w.days === 1 ? "giorno" : "giorni"} di lavoro</span><span class="chip"><b>${w.fri}</b> venerdì</span></div>${hol}`;
+  }
+
+  // ---------- Quiz ----------
+  const QKEY = "ornella-jp-quiz-v1";
+  let quizLog = load(QKEY, {});
+  function dkey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+  function shuffle(a, r) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const wmod = i => ((i % WORDS.length) + WORDS.length) % WORDS.length;
+  function quizFor(date) {
+    const start = dayDiff(trip().albumStart, date);
+    const seen = Math.min(WORDS.length, Math.max(3, start + 1));
+    const pool = [];
+    for (let k = 0; k < seen; k++) pool.push(wmod(start - k));
+    const r = rng(Number(dkey(date).replace(/-/g, "")));
+    return shuffle(pool, r).slice(0, 3).map(i => {
+      const others = shuffle(WORDS.map((_, j) => j).filter(j => j !== i), r).slice(0, 2);
+      return { w: i, opts: shuffle([i, ...others], r) };
+    });
+  }
+  const isDone = l => l && l.a && l.a.length === 3 && l.a.every(x => x !== null);
+  function quizStreak() {
+    let d = midnight(new Date());
+    if (!isDone(quizLog[dkey(d)])) d = addDays(d, -1);
+    let s = 0;
+    while (isDone(quizLog[dkey(d)])) { s++; d = addDays(d, -1); }
+    return s;
+  }
+  function renderQuiz() {
+    const today = midnight(new Date());
+    const qs = quizFor(today);
+    const log = quizLog[dkey(today)] || { a: [null, null, null] };
+    document.getElementById("quiz").innerHTML = qs.map((q, qi) => {
+      const w = WORDS[q.w], ans = log.a[qi];
+      return `<div class="q"><div class="q-word"><b>${w.k}</b><span>${w.r}</span></div><div class="opts">` +
+        q.opts.map(o => {
+          let cls = "opt";
+          if (ans !== null) { if (o === q.w) cls += " right"; else if (o === ans) cls += " wrong"; }
+          return `<button type="button" class="${cls}" data-q="${qi}" data-o="${o}" ${ans !== null ? "disabled" : ""}>${esc(WORDS[o].it)}</button>`;
+        }).join("") + "</div></div>";
+    }).join("");
+    const answered = log.a.filter(x => x !== null).length;
+    const score = log.a.filter((x, i) => x === qs[i].w).length;
+    const st = quizStreak();
+    document.getElementById("quizScore").textContent = `${answered}/3`;
+    const streakTxt = st ? `Serie: ${st} ${st === 1 ? "giorno" : "giorni di fila"}` : "Rispondi ogni giorno per fare una serie";
+    let head = "Scegli il significato giusto.";
+    if (isDone(log)) head = score === 3 ? "3 su 3, sugoi!" : score === 2 ? "2 su 3, quasi perfetto!" : score === 1 ? "1 su 3: domani va meglio." : "0 su 3: ganbatte, domani si riprova!";
+    document.getElementById("quizFoot").textContent = `${head} · ${streakTxt}`;
+  }
+  document.getElementById("quiz").addEventListener("click", e => {
+    const b = e.target.closest("button.opt"); if (!b || b.disabled) return;
+    const key = dkey(midnight(new Date()));
+    const log = quizLog[key] || { a: [null, null, null] };
+    log.a[Number(b.dataset.q)] = Number(b.dataset.o);
+    quizLog[key] = log; save(QKEY, quizLog); renderQuiz();
+  });
+
+  // ---------- Converter ----------
+  const RKEY = "ornella-jp-rate-v1";
+  let rate = Number(load(RKEY, 175)) || 175;
+  const cYen = document.getElementById("cYen"), cEur = document.getElementById("cEur"), cRate = document.getElementById("cRate");
+  const eurFmt = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
+  const PRICES = [["Onigiri", 160], ["Biglietto metro", 210], ["Ramen", 1100], ["Kit Kat souvenir", 900], ["Ingresso tempio", 500], ["Notte in hotel", 12000]];
+  function fromYen() { const y = parseFloat(cYen.value); cEur.value = isFinite(y) ? (y / rate).toFixed(2) : ""; }
+  function renderPrices() {
+    document.getElementById("prices").innerHTML = PRICES.map(([n, y]) =>
+      `<button type="button" class="price" data-yen="${y}">${n} ${y.toLocaleString("it-IT")} ¥ ≈ ${eurFmt.format(y / rate)}</button>`).join("");
+  }
+  cRate.value = rate;
+  cYen.addEventListener("input", fromYen);
+  cEur.addEventListener("input", () => { const e = parseFloat(cEur.value); cYen.value = isFinite(e) ? Math.round(e * rate) : ""; });
+  cRate.addEventListener("input", () => {
+    const r = parseFloat(cRate.value);
+    if (!isFinite(r) || r <= 0) return;
+    rate = r; save(RKEY, rate); fromYen(); renderPrices();
+  });
+  document.getElementById("prices").addEventListener("click", e => {
+    const b = e.target.closest("[data-yen]"); if (!b) return;
+    cYen.value = b.dataset.yen; fromYen();
+  });
+  renderPrices();
+
+  // ---------- Album ----------
+  function renderAlbum() {
+    const t = trip(), now = midnight(new Date());
+    const total = dayDiff(t.albumStart, t.retDay) + 1;
+    const el = document.getElementById("album");
+    let html = "", unlocked = 0;
+    for (let i = 0; i < total; i++) {
+      const d = addDays(t.albumStart, i);
+      const open = d <= now;
+      if (open) unlocked++;
+      const fl = flavorFor(d, t);
+      const isTrip = d >= t.depDay && d <= t.retDay;
+      const cls = ["cell", open ? "" : "locked", dayDiff(now, d) === 0 ? "is-today" : "", isTrip ? "trip" : ""].join(" ");
+      html += `<button type="button" class="${cls}" data-i="${i}" ${open ? `aria-label="${esc(fl.n)}, ${fmtShort.format(d)}"` : `disabled aria-label="Bloccato fino al ${fmtShort.format(d)}"`}>
+        ${open ? pouch(fl, { mini: true }) : pouch({ n: "?", f: "❔", c1: "#ddd", c2: "#aaa" }, { mini: true })}${fmtShort.format(d)}</button>`;
+    }
+    el.innerHTML = html;
+    document.getElementById("albumCount").textContent = `${unlocked}/${total}`;
+  }
+  document.getElementById("album").addEventListener("click", e => {
+    const b = e.target.closest("button.cell");
+    if (!b || b.disabled) return;
+    renderToday(addDays(trip().albumStart, Number(b.dataset.i)));
+    document.getElementById("stickerBtn").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  // ---------- Sticker tap ----------
+  const stickerBtn = document.getElementById("stickerBtn");
+  stickerBtn.addEventListener("click", () => {
+    stickerBtn.classList.remove("pop"); void stickerBtn.offsetWidth; stickerBtn.classList.add("pop", "tapped");
+    setTimeout(() => stickerBtn.classList.remove("pop"), 550);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = stickerBtn.getBoundingClientRect();
+    for (let i = 0; i < 12; i++) {
+      const h = document.createElement("span");
+      h.className = "heart"; h.textContent = "❤";
+      h.style.left = (r.left + r.width / 2) + "px"; h.style.top = (r.top + r.height / 3) + "px";
+      const a = Math.random() * Math.PI * 2, dist = 70 + Math.random() * 90;
+      h.style.setProperty("--dx", Math.cos(a) * dist + "px");
+      h.style.setProperty("--dy", Math.sin(a) * dist - 40 + "px");
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1200);
+    }
+    if (shownDate) setTimeout(() => renderToday(), 1400);
+  });
+
+  // ---------- Packing ----------
+  const PKEY = "ornella-jp-pack-v1";
+  let pack = load(PKEY, null) || PACK_DEFAULT.map(x => ({ t: x, d: false }));
+  function renderPack() {
+    const ul = document.getElementById("packList");
+    ul.innerHTML = pack.map((p, i) => `<li><label class="${p.d ? "done" : ""}"><input type="checkbox" id="pk${i}" data-i="${i}" ${p.d ? "checked" : ""}><span>${esc(p.t)}</span></label><button type="button" class="del" data-del="${i}" aria-label="Rimuovi ${esc(p.t)}">&times;</button></li>`).join("");
+    const done = pack.filter(p => p.d).length;
+    document.getElementById("packCount").textContent = `${done}/${pack.length} pronte`;
+  }
+  document.getElementById("packList").addEventListener("change", e => {
+    if (e.target.dataset.i == null) return;
+    pack[Number(e.target.dataset.i)].d = e.target.checked; save(PKEY, pack); renderPack();
+  });
+  document.getElementById("packList").addEventListener("click", e => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    pack.splice(Number(b.dataset.del), 1); save(PKEY, pack); renderPack();
+  });
+  document.getElementById("packForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const inp = document.getElementById("packInput"); const v = inp.value.trim();
+    if (!v) return;
+    pack.push({ t: v, d: false }); save(PKEY, pack); inp.value = ""; renderPack();
+  });
+
+  // ---------- Settings ----------
+  function fillForm() {
+    document.getElementById("sName").value = cfg.name;
+    document.getElementById("sDep").value = cfg.dep;
+    document.getElementById("sDepTime").value = cfg.depTime;
+    document.getElementById("sRet").value = cfg.ret;
+    document.getElementById("sRetTime").value = cfg.retTime;
+  }
+  function msg(text, ok) { const m = document.getElementById("sMsg"); m.textContent = text; m.className = "msg " + (ok ? "ok" : "err"); }
+  document.getElementById("settingsForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const next = {
+      name: document.getElementById("sName").value.trim() || "Ornella",
+      dep: document.getElementById("sDep").value,
+      depTime: document.getElementById("sDepTime").value,
+      ret: document.getElementById("sRet").value,
+      retTime: document.getElementById("sRetTime").value
+    };
+    if (!next.dep || !next.ret) return msg("Inserisci sia la partenza che il ritorno.");
+    if (parseDate(next.ret, next.retTime || "23:59") <= parseDate(next.dep, next.depTime)) return msg("Il ritorno deve venire dopo la partenza.");
+    cfg = next; save(KEY, cfg); renderAll(); msg("Date salvate.", true);
+  });
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    cfg = Object.assign({}, DEFAULTS); save(KEY, cfg); fillForm(); renderAll(); msg("Date ripristinate: 11–24 dicembre.", true);
+  });
+  document.getElementById("openSettings").addEventListener("click", () => {
+    document.getElementById("settingsCard").scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => document.getElementById("sDep").focus({ preventScroll: true }), 400);
+  });
+
+  function renderHeader() {
+    const name = cfg.name || "Ornella";
+    document.getElementById("title").textContent = `L'${name}metro`;
+    const t = trip();
+    document.getElementById("subtitle").textContent = `Road to Japan · ${fmtShort.format(t.depDay)} – ${fmtShort.format(t.retDay)}`;
+  }
+
+  let lastDay = midnight(new Date()).getTime();
+  function renderAll() { renderHeader(); renderCount(); renderToday(); renderWord(); renderQuiz(); renderAlbum(); renderClocks(); }
+
+  fillForm(); renderAll(); renderPack();
+  setInterval(() => {
+    renderCount(); renderClocks();
+    const today = midnight(new Date()).getTime();
+    if (today !== lastDay) { lastDay = today; renderAll(); }
+  }, 1000);
+})();
+</script>
